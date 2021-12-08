@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    volumes:
+      - .:/web/app
+    ports:
+      - 4151:80
+    environment:
+      - MONGOURI=dev:devpass@dev_mongo
+      - MONGODB=citest
+    networks:
+      common: {}
+
+  # db:
+  #   image: mariadb
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: example
+  #   networks:
+  #     common: {}
+
+networks:
+  common:
+    external: true

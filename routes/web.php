@@ -41,6 +41,7 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->get('quiz[/{id}]',['uses' => 'QuizController@fetch']);
     $router->post('quiz',['uses' => 'QuizController@create']);
     $router->put('quiz/{id}',['uses' => 'QuizController@update']);
+    $router->delete('quiz/{id}',['uses' => 'QuizController@remove']);
 //  Question Routes
     $router->get('question[/{id}]',['uses' => 'QuestionController@fetch']);
     $router->post('question/{id}',['uses' => 'QuestionController@create']);

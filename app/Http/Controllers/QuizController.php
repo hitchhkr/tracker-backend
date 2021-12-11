@@ -55,6 +55,18 @@
 
         }
 
+        public function remove(string $id,Request $request)
+        {
+
+            $db = new Quiz();
+            $db->setId($id);
+
+            return response()->json([
+                'db' => $db->remove()
+            ]);
+
+        }
+
         public function update(string $id,Request $request){
 
             $db = new Quiz();

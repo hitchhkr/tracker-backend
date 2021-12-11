@@ -163,6 +163,21 @@
 
         }
 
+        public function remove()
+        {
+
+            if(!$this->id){
+                throw new Exception('No id');
+            }
+
+            $q = [
+                '_id' => $this->id
+            ];
+
+            return $this->dbdelete($q);
+
+        }
+
     }
 
 ?>

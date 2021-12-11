@@ -25,6 +25,35 @@
 
         }
 
+        public function fetchApplication(?string $id, string $ext)
+        {
+            $gc = new Gsuite();
+            //$gc->setBucket(env('GCLOUD_APP_BUCKET'));
+
+            $uri = 'gs://';
+            $uri .= env('GCLOUD_APP_BUCKET') . '/' . $id . '.' . $ext;
+
+            $contetType = null;
+
+            switch(strtolower($ext)){
+
+                case 'jpg':
+                    $contetType = 'image/jpg';
+                    break;
+                case 'png':
+                    $contentType = 'image/png';
+                    break;
+                case 'mp3':
+                    $contentType = 'media/mp3';
+                    break;
+
+            }
+
+            return response($gc->getImage($uri), 200)
+                  ->header('Content-Type', $contetType);
+
+        }
+
     }
 
 ?>

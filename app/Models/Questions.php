@@ -110,6 +110,21 @@
 
         }
 
+        public function remove()
+        {
+
+            if(!$this->id){
+                throw new Exception('no id');
+            }
+
+            $q = [
+                '_id' => $this->id
+            ];
+
+            return $this->dbdelete($q);
+
+        }
+
     }
 
 ?>

@@ -20,6 +20,7 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'media'], function () use ($router){
 
     $router->get('question/{id}.{ext}',['uses' => 'MediaController@fetchQuestion']);
+    $router->get('application/{id}.{ext}',['uses' => 'MediaController@fetchApplication']);
 
 });
 
@@ -45,6 +46,7 @@ $router->group(['prefix' => 'api'], function () use ($router){
 //  Question Routes
     $router->get('question[/{id}]',['uses' => 'QuestionController@fetch']);
     $router->post('question/{id}',['uses' => 'QuestionController@create']);
+    $router->delete('question/{id}',['uses' => 'QuestionController@remove']);
 //  Rounds Routes
     $router->get('rounds/{id}[/{label}]',['uses' => 'QuizController@fetchRounds']);
     $router->post('rounds/{id}',['uses' => 'QuizController@createRound']);

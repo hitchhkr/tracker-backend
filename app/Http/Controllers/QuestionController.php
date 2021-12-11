@@ -11,7 +11,6 @@
 
     class QuestionController extends Controller{
 
-
         public function fetch(?string $id = null, Request $request){
 
             $db = new Questions();
@@ -26,6 +25,28 @@
                 'label' => $label,
                 'questions' => General::formatMongoForJson($result)
             ]);
+
+        }
+
+        public function remove(string $id)
+        {
+
+            $db = new Questions();
+            $gc = new Gsuite();
+            $db->setId($id);
+
+            $question = $db->get();
+            $file = null;
+
+            if(isset($question['gcloud'])){
+                $file = $gc->getObjectName($question['gcloud']['uri']);
+                $gc->remove($file);
+            }
+
+            return response()->json([
+                'db' => $db->remove(),
+                'file' => $file
+            ]); 
 
         }
 

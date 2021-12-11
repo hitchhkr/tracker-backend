@@ -24,6 +24,15 @@
 
         }
 
+        public function getObjectName(string $path):string
+        {
+
+            $base = 'gs://' . $this->bucketName . '/';
+
+            return str_replace($base,'',$path);
+
+        }
+
         public function setBucket($bucket)
         {
 
@@ -53,6 +62,14 @@
             $this->storage->registerStreamWrapper();
         
             return file_get_contents($path);
+
+        }
+
+        public function remove(string $name)
+        {
+
+            $object = $this->bucket->object($name);
+            return $object->delete();
 
         }
 

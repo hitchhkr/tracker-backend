@@ -80,6 +80,22 @@
 
         }
 
+        public function updateRounds(string $id,string $label,Request $request)
+        {
+
+            $quiz = new Quiz();
+            $quiz->setId($id);
+            $input = $request->all();
+
+            $update = $quiz->updateRound($label,$input);
+
+            return response()->json([
+                'db' => $update,
+                'input' => $input
+            ]);
+
+        }
+
         public function createRound($id, Request $request)
         {
 

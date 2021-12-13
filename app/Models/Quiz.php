@@ -140,6 +140,40 @@
 
         }
 
+        public function updateRound($round,$vars)
+        {
+
+            if(!$this->id){
+                throw new Exception('No id');
+            }
+            $updateVars = [];
+
+            $q = [
+                '_id' => $this->id,
+                'rounds' => [
+                    '$elemMatch' => [
+                        'label' => $round
+                    ]
+                ]
+            ];
+
+            foreach($vars AS $k => $v){
+                $updateVars['rounds.$.' . $k] = $v;
+            }
+
+            $updateVars['updated'] = new UTCDateTime();
+
+            $update = [
+                '$set' => $updateVars,
+                '$inc' => [
+                    'version' => 1
+                ]
+            ];
+
+            return $this->dbupdate($q,$update);
+
+        }
+
         public function update($vars){
 
             if(!$this->id){

@@ -50,6 +50,6 @@ $router->group(['prefix' => 'api'], function () use ($router){
 //  Rounds Routes
     $router->get('rounds/{id}[/{label}]',['uses' => 'QuizController@fetchRounds']);
     $router->post('rounds/{id}',['uses' => 'QuizController@createRound']);
-
+    $router->put('rounds/{id}/{label}',['uses' => 'QuizController@updateRounds']);
 
 });

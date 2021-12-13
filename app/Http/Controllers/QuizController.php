@@ -25,6 +25,10 @@
             }
             $result = $db->get();
 
+            if($request->input('latest')){
+                $result = $result[0];
+            }
+
             return response()->json([
                 'id' => $id,
                 'quizzes' => General::formatMongoForJson($result)

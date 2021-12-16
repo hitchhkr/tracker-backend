@@ -14,6 +14,7 @@
         public $name;
         public $email;
         public $active = true;
+        public $superAdmin = false;
         private ObjectId $id;
 
         public function __construct(){

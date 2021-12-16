@@ -8,6 +8,7 @@
     use App\Extra\General;
     use App\Extra\Label;
     use App\Extra\Gsuite;
+    use App\Extra\Geom;
 
     class QuestionController extends Controller{
 
@@ -57,24 +58,40 @@
             $gcp = new Gsuite();
             $vars = $request->all();
 
-            $fn = Label::create() . '_' . $vars['imagename'];
-
-            $file = General::processImageURI($vars['imageurl']);
-            $upload = $gcp->upload($file['binary'],$fn);
-
             $db->setQuizId($id)
                 ->setLabel($vars['round'])
                 ->set('type',$vars['type'])
                 ->set('question',$vars['question'])
                 ->set('answer',$vars['answer'])
-                ->set('points',$vars['points'])
-                ->set('gcloud',[
+                ->set('points',$vars['points']);
+                
+
+            if($vars['imagename']){
+
+                $fn = Label::create() . '_' . $vars['imagename'];
+
+                $file = General::processImageURI($vars['imageurl']);
+                $upload = $gcp->upload($file['binary'],$fn);
+
+                $db->set('gcloud',[
                     'uri' => $upload->gcsUri(),
                     'contentType' => $file['contentType']
                 ]);
 
+            }
+
+            if($vars['locationPoint']){
+                $geom = new Geom($vars['locationPoint']);
+                $geom->setPoint($vars['locationPoint']);
+                $geojson = $geom->getGeoJson();
+                $db->set('geom',$geojson);
+            }
+
             return response()->json([
                 'result' => $db->create()
+                //'vars' => $vars,
+                //'db' => $db,
+                //'geom' => $geom
             ]);
 
         }

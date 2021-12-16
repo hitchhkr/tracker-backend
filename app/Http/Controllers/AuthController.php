@@ -19,6 +19,7 @@
             $resp = [
                 'allow' => $user ? (new BcryptHasher)->check($request->input('password'),$user['password']) : false,
                 'username' => $request->input('username'),
+                'superAdmin' => isset($user['superAdmin']) ? $user['superAdmin'] : false,
                 'info' => [
                     'name' => $user['name'],
                     'email' => $user['email']

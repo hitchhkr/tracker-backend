@@ -21,6 +21,7 @@ $router->group(['prefix' => 'media'], function () use ($router){
 
     $router->get('question/{id}.{ext}',['uses' => 'MediaController@fetchQuestion']);
     $router->get('application/{id}.{ext}',['uses' => 'MediaController@fetchApplication']);
+    $router->get('11111/{id}/{type}.{ext}',['uses' => 'MediaController@fetchOne']);
 
 });
 
@@ -51,5 +52,9 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->get('rounds/{id}[/{label}]',['uses' => 'QuizController@fetchRounds']);
     $router->post('rounds/{id}',['uses' => 'QuizController@createRound']);
     $router->put('rounds/{id}/{label}',['uses' => 'QuizController@updateRounds']);
+//  11111 Routes
+    $router->get('11111[/{id}]', ['uses' => 'OneController@fetch']);
+    $router->post('11111', ['uses' => 'OneController@create']);
+    $router->put('11111/{id}', ['uses' => 'OneController@update']);
 
 });

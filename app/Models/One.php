@@ -89,6 +89,30 @@
 
         }
 
+        public function update($vars)
+        {
+
+            if(!$this->id){
+                throw new Exception('no id has been set');
+            }
+
+            $q = [
+                '_id' => $this->id
+            ];
+
+            $vars['updated'] = new UTCDateTime();
+
+            $update = [
+                '$set' => $vars,
+                '$inc' => [
+                    'version' => 1
+                ]
+            ];
+
+            return $this->dbupdate($q,$update);
+
+        }
+
     }
 
 ?>

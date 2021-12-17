@@ -10,6 +10,8 @@
     use App\Extra\General;
     use App\Extra\Gsuite;
     use App\Extra\Label;
+    use App\Extra\Images;
+    use MongoDB\BSON\UTCDateTime;
 
     class OneController extends Controller{
 
@@ -22,8 +24,15 @@
                 $db->setId($id);
             }
 
+            $films = $db->get();
+
+            if($request->input('random') && !$id){
+                $rand = mt_rand(0,count($films) - 1);
+                $films = $films[$rand];
+            }
+
             return response()->json([
-                'db' => General::formatMongoForJson($db->get())
+                'db' => General::formatMongoForJson($films)
             ]);
 
         }
@@ -59,26 +68,45 @@
 
             $db = new One();
             $db->setId($id);
-
             $film = $db->get();
-
-            $gcp = new Gsuite();
-            $gcp->setBucket(env('GCLOUD_11111_BUCKET'));
-
-            $oneId = $film['_label'];
-            $fn = $oneId . '/full.jpg';
 
             $vars = $request->all();
 
-            $file = General::processImageURI($vars['full']);
+            if(isset($vars['image'])){
 
-            $imagick = new \Imagick();
-            $imagick->readImageBlob($file['binary']);
-            $imagick->resizeImage(800,450,\Imagick::FILTER_QUADRATIC,0.5);
-            $imagick->setImageCompression(\Imagick::COMPRESSION_JPEG);
-            $imagick->setImageCompressionQuality(25);
+                $gcp = new Gsuite();
+                $gcp->setBucket(env('GCLOUD_11111_BUCKET'));
+    
+                $oneId = $film['_label'];
+                $fn = $oneId . '/full.jpg';
+                $fnSmall = $oneId . '/small.jpg';
 
-            $upload = $gcp->upload($imagick->getImageBlob(),$fn);
+            //  Remove any existing
+                if(isset($film['cropped'])){
+                    $gcp->remove($fn);
+                    $gcp->remove($fnSmall);
+                }
+    
+                $file = General::processImageURI($vars['image']);
+
+                $blob = Images::resize($file['binary'],800,480);
+                $blobSmall = Images::resize($file['binary'],160,90);
+    
+                $upload = $gcp->upload($blob,$fn);
+                $uploadSmall = $gcp->upload($blobSmall,$fnSmall);
+
+                $db->update([
+                    'cropped' => [
+                        'hasBeenCropped' => true,
+                        'lastcropped' => new UTCDateTime(),
+                        'files' => [
+                            'full' => $fn,
+                            'small' => $fnSmall
+                        ]
+                    ]
+                    ]);
+
+            }
 
             return response()->json([
                 'film' => General::formatMongoForJson($film)

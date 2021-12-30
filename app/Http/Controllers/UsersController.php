@@ -9,6 +9,8 @@
     use App\Models\Users;
     use App\Extra\General;
     use App\Mail\TestMail;
+    use App\Mail\ResetMail;
+    use App\Mail\ResetConfirmMail;
 
     class UsersController extends Controller{
 
@@ -69,6 +71,80 @@
 
             return response()->json([
                 'result' => $create ? General::formatMongoForJson($create) : false
+            ]);
+
+        }
+
+        public function reset(string $type,Request $request)
+        {
+
+            $rid = 'testing';
+            $allowed = false;
+            $users = new Users();
+
+            switch($type){
+
+                case 'email':
+
+                    $email = $request->input('email');
+                    $users->set('email',$email);
+                    $user = $users->getUserByEmail();
+        
+                    if($user){
+                        //We need to send out an email and mark the user as being reset
+                        $rid = $users->reset();
+                        Mail::to($email)->send(new ResetMail($user['username'],$email,$rid));
+                    }
+
+                break;
+
+                case 'verify':
+
+                    $email = $request->input('email');
+                    $token = $request->input('token');
+
+                    $allowed = (new BcryptHasher)->check($email,$token);
+
+                    return response()->json([
+                        'allowed' => $allowed
+                    ]);
+
+
+                break;
+
+                case 'password':
+
+                    $email = $request->input('email');
+                    $pwd = $request->input('password');
+
+                    $users->set('email',$email);
+
+                    $valid = $users->checkValidToken($email);
+                    $db = null;
+
+                    if($valid == true){
+
+                        $user = $users->getUserByEmail();
+                        $db = $users->updatePassword((new BcryptHasher)->make(trim($pwd)));
+                        Mail::to($email)->send(new ResetConfirmMail($user['username']));
+
+                    }
+
+                    return response()->json([
+                        'valid' => $valid,
+                        'db' => $db
+                    ]);
+
+                break;
+
+            }
+
+            return response()->json([
+                //'type' => $type,
+                // 'rid' => $rid
+                // 'email' => $email,
+                // 'users' => $user,
+                //'allowed' => $allowed
             ]);
 
         }

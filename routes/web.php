@@ -30,6 +30,7 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->get('info', ['uses' => 'InfoController@getInfo']);
 
     $router->post('auth', ['uses' => 'AuthController@auth']);
+    $router->post('reset/{type}', ['uses' => 'UsersController@reset']);
 
     $router->post('signup',['uses' => 'UsersController@signup']);
 

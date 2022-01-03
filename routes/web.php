@@ -57,5 +57,8 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->get('11111[/{id}]', ['uses' => 'OneController@fetch']);
     $router->post('11111', ['uses' => 'OneController@create']);
     $router->put('11111/{id}', ['uses' => 'OneController@update']);
+//  Dictionary Routers
+    $router->get('dictionary/{action}/{word}', ['uses' => 'DictionaryController@find']);
+    $router->post('dictionary/{type}', ['uses' => 'DictionaryController@create']);
 
 });

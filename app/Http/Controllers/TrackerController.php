@@ -32,7 +32,7 @@
             $tracker->setUid($id);
 
             $result = $tracker->getSummary();
-            $resp = null;
+            $resp = [];
 
             if($result){
 

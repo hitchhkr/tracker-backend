@@ -112,6 +112,28 @@
 
         }
 
+        public function updatePreferences($type,$vars)
+        {
+
+            if(!$this->id){
+                throw new \Exception('No id was provided');
+            }
+
+            $q = [
+                '_id' => $this->id
+            ];
+
+            $update = [
+                '$set' => [
+                    $type => $vars,
+                    $type . 'Updated' => new UTCDateTime()
+                ]
+            ];
+
+            return $this->dbupdate($q,$update);
+
+        }
+
         public function reset()
         {
 

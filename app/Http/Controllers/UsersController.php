@@ -27,10 +27,29 @@
 
         }
 
+        public function createPrefs(string $type ,string $id, Request $request)
+        {
+
+            $db = new Users();
+            $resp = $db->setId($id)->updatePreferences($type,$request->all());
+
+            return response()->json([
+                'type' => $type,
+                'db' => $resp
+                //'id' => $id,
+                //'vars' => $request->all()
+            ]);
+
+        }
+
         public function fetch(?string $id = null){
 
             $db = new Users();
             $result = $db->fetch($id);
+
+            unset($result['password']);
+            unset($result['passwordHistory']);
+            unset($result['resetRequests']);
 
             return response()->json([
                 'id' => $id,

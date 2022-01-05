@@ -3,6 +3,7 @@
     namespace App\Extra;
 
     use MongoDB\Client;
+	use MongoDB\BSON\UTCDateTime;
 
     class Mongo {
 
@@ -276,6 +277,33 @@
 			}
 
         }
+
+		function formatForInput(array $vars):array
+		{
+
+			$output = [];
+
+			foreach($vars AS $k => $v){
+
+				if($v instanceof \DateTime){
+					$output[$k]  = new UTCDateTime($v->getTimestamp() * 1000);
+					continue;
+				}
+
+				if(\DateTime::createFromFormat('Y-m-d',$v)){
+					$dt = \DateTime::createFromFormat('Y-m-d',$v);
+					$dt->setTime(0,0,0);
+					$output[$k]  = new UTCDateTime($dt->getTimestamp() * 1000);
+					continue;
+				}
+
+				$output[$k] = $v;
+
+			}
+
+			return $output;
+
+		}
 
     }
 

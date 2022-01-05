@@ -37,6 +37,7 @@ $router->group(['prefix' => 'api'], function () use ($router){
 //  User Routes
     $router->get('user[/{id}]', ['uses' => 'UsersController@fetch']);
     $router->post('user', ['uses' => 'UsersController@create']);
+    $router->post('user/preferences/{type}/{id}', ['uses' => 'UsersController@createPrefs']);
     $router->delete('user/{id}', ['uses' => 'UsersController@remove']);
 //  Audit Routes
     $router->post('audit', ['uses' => 'AuditController@audit']);
@@ -60,5 +61,7 @@ $router->group(['prefix' => 'api'], function () use ($router){
 //  Dictionary Routers
     $router->get('dictionary/{action}/{word}', ['uses' => 'DictionaryController@find']);
     $router->post('dictionary/{type}', ['uses' => 'DictionaryController@create']);
-
+//  Tracker Routers
+    $router->get('tracker/{id}','TrackerController@fetch');
+    $router->post('tracker/{type}/{id}','TrackerController@create');
 });

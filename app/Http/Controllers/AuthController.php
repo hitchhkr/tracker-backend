@@ -22,7 +22,8 @@
                 'superAdmin' => isset($user['superAdmin']) ? $user['superAdmin'] : false,
                 'info' => [
                     'name' => $user['name'],
-                    'email' => $user['email']
+                    'email' => $user['email'],
+                    'id' => (string)$user['_id']
                 ]
             ];
 

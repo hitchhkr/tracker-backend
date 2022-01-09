@@ -31,20 +31,49 @@
             $tracker = new Tracker();
             $tracker->setUid($id);
 
-            $result = $tracker->getSummary();
             $resp = [];
 
-            if($result){
+            $type = $request->input('type') ? $request->input('type') : 'all';
 
-                foreach($result AS $r){
-                    $resp[$r['_id']] = $r['values'];
-                }
+            switch($type){
+
+                case 'all':
+
+                    $result = $tracker->getSummary();
+
+                    if($result){
+
+                        foreach($result AS $r){
+                            $resp[$r['_id']] = $r['values'];
+                        }
+
+                    }
+
+                break;
+
+                case 'tokens':
+
+                    $tracker->setType($type);
+                    $date = null;
+                    if($request->input('date')){
+                        $date = new \DateTime($request->input('date'));
+                    }
+                    $result = $tracker->getType($date);
+
+                    if($result){
+                        $resp = $result;
+                    }
+
+                    // $resp = [$date->format('c')];
+
+                break;
 
             }
 
             $resp = [
                 'id' => $id,
-                'result' => General::formatMongoForJson($resp)
+                'result' => General::formatMongoForJson($resp),
+                'var' => $request->all()
             ];
 
             return response()->json($resp,200);

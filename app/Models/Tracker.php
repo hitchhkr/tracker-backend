@@ -67,7 +67,7 @@
 
         }
 
-        public function  getSummary():array
+        public function  getSummary($type = null):array
         {
 
             $filter = [
@@ -101,6 +101,23 @@
             ];
 
             return $this->dbagg($aggs);
+
+        }
+
+        public function getType(\DateTime $date = null){
+
+            $q = [
+                '_userid' => $this->_userid,
+                '_type' => $this->_type
+            ];
+
+            if($date){
+                $q['values.date'] = new UTCDateTime($date->getTimestamp() * 1000);
+            }
+
+            // return $q;
+
+            return $this->dbfind($q,true);
 
         }
 

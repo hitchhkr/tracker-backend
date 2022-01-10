@@ -104,7 +104,47 @@
 
         }
 
-        public function getType(\DateTime $date = null){
+        public function getTokenSummary($limit = 10)
+        {
+
+            $filter = [
+                '$match' => [
+                    '_userid' => $this->_userid,
+                    '_type' => $this->_type
+                ]
+            ];
+
+            $sort = [
+                '$sort' => [
+                    '_id' => -1
+                ]
+            ];
+
+            $group = [
+                '$group' => [
+                    '_id' => '$values.date',
+                    'tokens' => [
+                        '$sum' => '$values.tokens'
+                    ]
+                ]
+            ];
+
+            $limit = [
+                '$limit' => $limit
+            ];
+
+            $aggs = [
+                $filter,
+                $group,
+                $sort,
+                $limit
+            ];
+
+            return $this->dbagg($aggs);
+
+        }
+
+        public function getType(\DateTime $date = null, int $limit= null, $sort = -1){
 
             $q = [
                 '_userid' => $this->_userid,
@@ -115,9 +155,17 @@
                 $q['values.date'] = new UTCDateTime($date->getTimestamp() * 1000);
             }
 
-            // return $q;
+            $options = [
+                'sort' => [
+                    'values.date' => $sort
+                ]
+            ];
 
-            return $this->dbfind($q,true);
+            if($limit){
+                $options['limit'] = $limit;
+            }
+
+            return $this->dbfind($q,true,$options);
 
         }
 

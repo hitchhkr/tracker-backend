@@ -51,17 +51,160 @@
 
                 break;
 
-                case 'tokens':
+                case 'weight':
+
+                    $limit = $request->input('limit') ? (int)$request->input('limit') : null;
+                    $format = $request->input('format') ? $request->input('format') : null;
+                    $target = $request->input('target') ? (float)$request->input('target') : 0;
 
                     $tracker->setType($type);
-                    $date = null;
-                    if($request->input('date')){
-                        $date = new \DateTime($request->input('date'));
-                    }
-                    $result = $tracker->getType($date);
+                    $result = $tracker->getType(null,$limit);
 
-                    if($result){
-                        $resp = $result;
+                    if($format == 'chart'){
+
+                        if($result){
+
+                            $result = array_reverse($result);
+
+                            $labels = [];
+                            $data = [];
+                            $datasets = [];
+                            $background = [];
+                            $backgroundTrg = [];
+                            $trg = [];
+                            $max = 0;
+                            $min = 0;
+
+                            foreach($result AS $r){
+                                $labels[] = $r['values']['date']->toDateTime()->format('j M y');
+                                // $labels[] = $r['values']['date'];
+                                $data[] = $r['values']['reading'];
+                                $background[] = '#FF5733';
+                                $backgroundTrg[] = '#20AB00';
+                                $trg[] = $target;
+                                if($r['values']['reading'] > $max){
+                                    $max = $r['values']['reading'];
+                                }
+                            }
+
+                            $resp = [
+                                'chart' => [
+                                    'labels' => $labels,
+                                    'datasets' => [
+                                        [
+                                            'label' => 'Weight',
+                                            'data' => $data,
+                                            'backgroundColor' => $background,
+                                            'borderColor' => '#FF5733'
+                                        ],
+                                        [
+                                            'label' => 'Target',
+                                            'data' => $trg,
+                                            'backgroundColor' => '#20AB00',
+                                            'borderColor' => '#20AB00'
+                                        ]
+                                    ]
+                                ],
+                                'options' => [
+                                    'scales' => [
+                                        'y' => [
+                                            'max' => $max + 3,
+                                            'min' => $target - 3,
+                                            'ticks' => [
+                                                'stepSize' => 2
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ];
+
+                        }
+
+                    }else{
+
+                        if($result){
+                            $resp = $result;
+                        }
+
+                    }
+
+                break;
+
+                case 'tokens':
+
+                    $limit = $request->input('limit') ? (int)$request->input('limit') : null;
+                    $format = $request->input('format') ? $request->input('format') : null;
+                    $target = $request->input('target') ? (float)$request->input('target') : 0;
+
+                    $tracker->setType($type);
+
+                    if($format == 'chart'){
+
+                        $result = $tracker->getTokenSummary($limit);
+
+                        if($result){
+                            $result = array_reverse($result);
+
+                            $labels = [];
+                            $data = [];
+                            $dataRemain = [];
+                            $datasets = [];
+
+                            foreach($result AS $r){
+                                $labels[] = $r['_id']->toDateTime()->format('j M y');
+                                // $labels[] = $r['values']['date'];
+                                $data[] = $r['tokens'];
+                                if($r['tokens'] < $target){
+                                    $dataRemain[] = $target - $r['tokens'];
+                                }else{
+                                    $dataRemain[] = 0;
+                                }
+                            }
+
+                            $resp = [
+                                'chart' => [
+                                    'labels' => $labels,
+                                    'datasets' => [
+                                        [
+                                            'label' => 'Tokens used',
+                                            'data' => $data,
+                                            'backgroundColor' => '#FF5733',
+                                            'borderColor' => '#FF5733'
+                                        ],
+                                        [
+                                            'label' => 'Tokens Remaining',
+                                            'data' => $dataRemain,
+                                            'backgroundColor' => '#20AB00',
+                                            'borderColor' => '#20AB00'
+                                        ],
+                                    ]
+                                ],
+                                'options' => [
+                                    'responsive' => true,
+                                    'scales' => [
+                                        'x' => [
+                                            'stacked' => true
+                                        ],
+                                        'y' => [
+                                            'stacked' => true
+                                        ]
+                                    ]
+                                ]
+                            ];
+                        }
+
+                    }else{
+
+                        $date = null;
+                        if($request->input('date')){
+                            $date = new \DateTime($request->input('date'));
+                        }
+                        $result = $tracker->getType($date);
+
+                        if($result){
+                            $resp = $result;
+                        }
+
                     }
 
                     // $resp = [$date->format('c')];

@@ -101,8 +101,13 @@
         public function create():?array{
 
             $check = $this->getUserByUsername();
+            $check2 = $this->getUserByEmail();
 
             if($check){
+                return null;
+            }
+
+            if($check2){
                 return null;
             }
 

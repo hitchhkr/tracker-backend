@@ -51,6 +51,12 @@
 
         }
 
+        // public static function storeTestData($key,$val){
+
+        //     $self::$key = $val;
+
+        // }
+
     }
 
 ?>

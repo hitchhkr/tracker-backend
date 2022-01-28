@@ -51,6 +51,28 @@
 
         }
 
+        public static function kgToLbs(float $kg, bool $dec = false)
+        {
+
+            $lbs = $kg / 0.453592;
+            $stone = floor($lbs / 14);
+            $lbs = $lbs - ($stone * 14);
+
+            if($dec == true){
+
+                return $stone + ($lbs / 14);
+
+            }else{
+
+                return [
+                    $stone,
+                    $lbs
+                ];
+
+            }
+
+        }
+
         // public static function storeTestData($key,$val){
 
         //     $self::$key = $val;

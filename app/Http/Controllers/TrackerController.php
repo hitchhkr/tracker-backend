@@ -56,6 +56,7 @@
                     $limit = $request->input('limit') ? (int)$request->input('limit') : null;
                     $format = $request->input('format') ? $request->input('format') : null;
                     $target = $request->input('target') ? (float)$request->input('target') : 0;
+                    $unit = $request->input('unit') ? $request->input('unit') : 'kg';
 
                     $tracker->setType($type);
                     $result = $tracker->getType(null,$limit);
@@ -78,13 +79,21 @@
                             foreach($result AS $r){
                                 $labels[] = $r['values']['date']->toDateTime()->format('j M y');
                                 // $labels[] = $r['values']['date'];
-                                $data[] = $r['values']['reading'];
+                                if($unit != 'kg'){
+                                    $data[] = General::kgToLbs($r['values']['reading'],true);
+                                    $trg[] = General::kgToLbs($target,true);
+                                    if(General::kgToLbs($r['values']['reading'],true) > $max){
+                                        $max = General::kgToLbs($r['values']['reading'],true);
+                                    }
+                                }else{
+                                    $data[] = $r['values']['reading'];
+                                    $trg[] = $target;
+                                    if($r['values']['reading'] > $max){
+                                        $max = $r['values']['reading'];
+                                    }
+                                }
                                 $background[] = '#FF5733';
                                 $backgroundTrg[] = '#20AB00';
-                                $trg[] = $target;
-                                if($r['values']['reading'] > $max){
-                                    $max = $r['values']['reading'];
-                                }
                             }
 
                             $resp = [
@@ -109,7 +118,7 @@
                                     'scales' => [
                                         'y' => [
                                             'max' => $max + 3,
-                                            'min' => $target - 3,
+                                            'min' => $unit == 'kg' ? $target - 3 : General::kgToLbs($target,true) - 3,
                                             'ticks' => [
                                                 'stepSize' => 2
                                             ]

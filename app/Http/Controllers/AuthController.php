@@ -24,7 +24,8 @@
                     'name' => $user['name'],
                     'email' => $user['email'],
                     'id' => (string)$user['_id']
-                ]
+                ],
+                'tracker' => isset($user['tracker']) ? $user['tracker'] : null
             ];
 
             return response()->json($resp,200);

@@ -21,9 +21,11 @@
             $db->set('username',$request->input('username'))
                 ->set('password',(new BcryptHasher)->make($request->input('password')));
 
+            $res = $db->create();
+
             return response()->json([
-                'db' => $db->create()
-            ]);
+                'db' => $res ? General::formatMongoForJson($res) : null
+            ],$res ? 201 : 200);
 
         }
 
@@ -47,9 +49,21 @@
             $db = new Users();
             $result = $db->fetch($id);
 
-            unset($result['password']);
-            unset($result['passwordHistory']);
-            unset($result['resetRequests']);
+            if($id){
+
+                unset($result['password']);
+                unset($result['passwordHistory']);
+                unset($result['resetRequests']);
+
+            }else{
+
+                foreach($result AS $k => $r){
+                    unset($result[$k]['password']);
+                    unset($result[$k]['passwordHistory']);
+                    unset($result[$k]['resetRequests']);
+                }
+
+            }
 
             return response()->json([
                 'id' => $id,

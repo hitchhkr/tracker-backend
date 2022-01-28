@@ -2,7 +2,7 @@ FROM dev_php80:latest
 
 #RUN yum install -y php-pecl-mcrypt php-gmp php-pgsql
 
-RUN sed -i 's/memory_limit = 512M/memory_limit = 4096M/g' /etc/php.ini
+# RUN sed -i 's/memory_limit = 512M/memory_limit = 4096M/g' /etc/php.ini
 RUN sed -i 's/max_execution_time = 30/max_execution_time = 3600/g' /etc/php.ini
 
 RUN yum -y remove composer

@@ -73,6 +73,16 @@
 
         }
 
+        public static function getDecade(int $year)
+        {
+
+            $dec = $year / 10;
+            $floor = floor($dec);
+
+            return $floor * 10;
+
+        }
+
         // public static function storeTestData($key,$val){
 
         //     $self::$key = $val;

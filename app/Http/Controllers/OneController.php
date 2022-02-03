@@ -27,6 +27,7 @@
             }
 
             $films = $db->get();
+            $total = count($films);
 
             if($request->input('random') && !$id){
                 $rand = mt_rand(0,count($films) - 1);
@@ -34,7 +35,8 @@
             }
 
             return response()->json([
-                'db' => General::formatMongoForJson($films)
+                'db' => General::formatMongoForJson($films),
+                'total' => $total
             ]);
 
         }
@@ -155,11 +157,18 @@
                     }
                 }
 
+                if($vars['year'] > 1919)
+                {
+                    $vars['decade'] = General::getDecade($vars['year']);
+                }
+
+                $db->update($vars);
+
             }
 
             return response()->json([
                 'film' => General::formatMongoForJson($film),
-                'vars' => $vars
+                //'vars' => $vars
             ]);
 
         }

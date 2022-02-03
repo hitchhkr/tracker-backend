@@ -18,3 +18,5 @@ Homestead.json
 .phpunit.result.cache
 
 auth/
+
+composer.lock

@@ -55,6 +55,7 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->post('rounds/{id}',['uses' => 'QuizController@createRound']);
     $router->put('rounds/{id}/{label}',['uses' => 'QuizController@updateRounds']);
 //  11111 Routes
+    $router->get('11111/director[/{id}]', ['uses' => 'OneController@fetchDirector']);
     $router->get('11111[/{id}]', ['uses' => 'OneController@fetch']);
     $router->post('11111', ['uses' => 'OneController@create']);
     $router->put('11111/{id}', ['uses' => 'OneController@update']);
@@ -64,4 +65,6 @@ $router->group(['prefix' => 'api'], function () use ($router){
 //  Tracker Routers
     $router->get('tracker/{id}','TrackerController@fetch');
     $router->post('tracker/{type}/{id}','TrackerController@create');
+//  Options Routers
+    $router->get('options/{type}[/{value}]','OptionsController@fetch');
 });

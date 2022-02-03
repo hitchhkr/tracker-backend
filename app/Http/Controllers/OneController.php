@@ -7,6 +7,8 @@
     //use Illuminate\Hashing\BcryptHasher;
     //use Illuminate\Support\Facades\Mail;
     use App\Models\One;
+    use App\Models\Directors;
+    use App\Models\Options;
     use App\Extra\General;
     use App\Extra\Gsuite;
     use App\Extra\Label;
@@ -33,6 +35,23 @@
 
             return response()->json([
                 'db' => General::formatMongoForJson($films)
+            ]);
+
+        }
+
+        public function fetchDirector(?string $id = null, Request $request)
+        {
+
+            $db = new Directors();
+
+            if($id){
+                $db->setId($id);
+            }
+
+            $directors = $db->get();
+
+            return response()->json([
+                'db' => General::formatMongoForJson($directors)
             ]);
 
         }
@@ -108,8 +127,39 @@
 
             }
 
+            if(isset($vars['title'])){
+
+                $directors = new Directors();
+                $options = new Options();
+                $options->setType('11111_genres');
+
+                foreach($vars['director'] AS $k => $d)
+                {
+                    $check = $directors->setName($d)->get();
+                    if($check){
+                        $vars['director'][$k] = $check;
+                    }else{
+                        $directors->create();
+                        $vars['director'][$k] = $directors->get();
+                    }
+                }
+
+                foreach($vars['genres'] AS $k => $d)
+                {
+                    $check = $options->setValue($d)->get();
+                    if($check){
+                        $vars['genres'][$k] = $check;
+                    }else{
+                        $options->create();
+                        $vars['genres'][$k] = $options->get();
+                    }
+                }
+
+            }
+
             return response()->json([
-                'film' => General::formatMongoForJson($film)
+                'film' => General::formatMongoForJson($film),
+                'vars' => $vars
             ]);
 
         }

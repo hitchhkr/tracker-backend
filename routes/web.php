@@ -57,6 +57,7 @@ $router->group(['prefix' => 'api'], function () use ($router){
 //  11111 Routes
     $router->get('11111/director[/{id}]', ['uses' => 'OneController@fetchDirector']);
     $router->get('11111/rating[/{id}]', ['uses' => 'OneController@fetchRating']);
+    $router->get('11111/sections/{type}[/{subtype}]', ['uses' => 'OneController@fetchSection']);
     $router->get('11111[/{id}]', ['uses' => 'OneController@fetch']);
     $router->post('11111/rating', ['uses' => 'OneController@createRating']);
     $router->post('11111', ['uses' => 'OneController@create']);

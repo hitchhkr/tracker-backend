@@ -9,6 +9,8 @@
     use App\Models\One;
     use App\Models\Directors;
     use App\Models\Options;
+    use App\Models\Ratings;
+    use App\Models\Rating;
     use App\Extra\General;
     use App\Extra\Gsuite;
     use App\Extra\Label;
@@ -58,6 +60,25 @@
 
         }
 
+        public function fetchRating(?string $id = null, Request $request)
+        {
+
+            $db = new Ratings();
+            if($id){
+                $db->setFilmId($id);
+            }
+
+            $resp = [];
+            $resp['avg'] = $db->get();
+
+            if($request->input('user_id')){
+                $resp['user'] = $db->setUserId($request->input('user_id'))->get();
+            }
+
+            return response()->json($resp,200);
+
+        }
+
         public function create(Request $request){
 
             $db = new One();
@@ -81,6 +102,61 @@
                 // 'fn' => $fn
                 'db' => $db->create()
             ]);
+
+        }
+
+        public function createRating(Request $request)
+        {
+
+            $vars = $request->all();
+
+            $rating = new Rating();
+            $ratings = new Ratings();
+            $rating->setAll($vars['ratings']);
+
+            $ratings->setFilmId($vars['film_id'])
+                ->setUserId($vars['user_id'])
+                ->setRating($rating);
+
+            try{
+                $create = $ratings->create();
+                $code = 201;
+            }catch(Exception $e){
+                $create = $e->getMessage();
+                $code = 400;
+            }
+
+            return response()->json([
+                'db' => General::formatMongoForJson($create)
+            ],$code);
+
+        }
+
+        public function updateRating(Request $request)
+        {
+
+            $vars = $request->all();
+
+            $rating = new Rating();
+            $ratings = new Ratings();
+            $rating->setAll($vars['ratings']);
+
+            $ratings->setFilmId($vars['film_id'])
+                ->setUserId($vars['user_id'])
+                ->setRating($rating);
+
+            try{
+                $create = $ratings->update();
+                $code = 201;
+            }catch(Exception $e){
+                $create = $e->getMessage();
+                $code = 400;
+            }
+
+            return response()->json([
+                'func' => 'update',
+                'db' => General::formatMongoForJson($create)
+            ],$code);
 
         }
 

@@ -56,8 +56,11 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->put('rounds/{id}/{label}',['uses' => 'QuizController@updateRounds']);
 //  11111 Routes
     $router->get('11111/director[/{id}]', ['uses' => 'OneController@fetchDirector']);
+    $router->get('11111/rating[/{id}]', ['uses' => 'OneController@fetchRating']);
     $router->get('11111[/{id}]', ['uses' => 'OneController@fetch']);
+    $router->post('11111/rating', ['uses' => 'OneController@createRating']);
     $router->post('11111', ['uses' => 'OneController@create']);
+    $router->put('11111/rating[/{id}]', ['uses' => 'OneController@updateRating']);
     $router->put('11111/{id}', ['uses' => 'OneController@update']);
 //  Dictionary Routers
     $router->get('dictionary/{action}/{word}', ['uses' => 'DictionaryController@find']);

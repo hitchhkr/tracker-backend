@@ -11,8 +11,8 @@
     class Ratings extends Mongo {
 
         private ObjectId $id;
-        public ObjectId $_film_id;
-        public ObjectId $_user_id;
+        public ?ObjectId $_film_id = null;
+        public ?ObjectId $_user_id = null;
         public Rating $rating;
         public UTCDateTime $created;
 
@@ -64,7 +64,7 @@
 
         public function get(){
 
-            if($this->_film_id){
+            if($this->_film_id && !$this->_user_id){
 
                 $match = [
                     '$match' => [
@@ -140,6 +140,72 @@
                 return $res;
 
             }
+
+        }
+
+        public function getRatingSummary($order = -1, $limit = 10)
+        {
+
+            $group = [
+                '$group' => [
+                    '_id' => '$_film_id',
+                    'quality' => [
+                        '$avg' => '$rating.quality'
+                    ],
+                    'enjoyment' => [
+                        '$avg' => '$rating.enjoyment'
+                    ],
+                    'difficulty' => [
+                        '$avg' => '$rating.difficulty'
+                    ],
+                    'overall' => [
+                        '$avg' => [
+                            '$add' => [
+                                '$rating.quality',
+                                '$rating.enjoyment'
+                            ]
+                        ]
+                    ],
+                    'total' => [
+                        '$sum' => 1
+                    ]
+                ]
+            ];
+
+            $sort = [
+                '$sort' => [
+                    'overall' => $order
+                ]
+            ];
+
+            $limit = [
+                '$limit' => $limit
+            ];
+
+            $lookup = [
+                '$lookup' => [
+                    'from' => 'one',
+                    'localField' => '_id',
+                    'foreignField' => '_id',
+                    'as' => 'film'
+                ]
+            ];
+
+            $unwind = [
+                '$unwind' => [
+                    'path' => '$film'
+                ]
+            ];
+
+            $agg = [
+                $group,
+                $sort,
+                $limit,
+                $lookup,
+                $unwind
+            ];
+
+            return $this->dbagg($agg);
 
         }
 

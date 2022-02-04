@@ -79,6 +79,18 @@
 
         }
 
+        public function fetchSection(string $type, ?string $subtype = null, Request $request)
+        {
+
+            $resp = [];
+
+            $ratings = new Ratings();
+            $resp['db'] = $ratings->getRatingSummary();
+
+            return response()->json(General::formatMongoForJson($resp),200);
+
+        }
+
         public function create(Request $request){
 
             $db = new One();

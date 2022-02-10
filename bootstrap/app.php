@@ -113,7 +113,8 @@ $app->router->group([
 });
 
 $app->middleware([
-    App\Http\Middleware\CorsMiddleware::class
+    App\Http\Middleware\CorsMiddleware::class,
+    App\Http\Middleware\EtagMiddleware::class
  ]);
 
 $app->register(Illuminate\Mail\MailServiceProvider::class);

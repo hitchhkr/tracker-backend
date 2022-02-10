@@ -21,7 +21,7 @@ $router->group(['prefix' => 'media'], function () use ($router){
 
     $router->get('question/{id}.{ext}',['uses' => 'MediaController@fetchQuestion']);
     $router->get('application/{id}.{ext}',['uses' => 'MediaController@fetchApplication']);
-    $router->get('11111/{id}/{type}.{ext}',['uses' => 'MediaController@fetchOne']);
+    $router->get('11111/{id}_{type}.{ext}',['uses' => 'MediaController@fetchOne']);
 
 });
 
@@ -59,8 +59,10 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->get('11111/rating[/{id}]', ['uses' => 'OneController@fetchRating']);
     $router->get('11111/sections/{type}[/{subtype}]', ['uses' => 'OneController@fetchSection']);
     $router->get('11111[/{id}]', ['uses' => 'OneController@fetch']);
+
     $router->post('11111/rating', ['uses' => 'OneController@createRating']);
     $router->post('11111', ['uses' => 'OneController@create']);
+    
     $router->put('11111/rating[/{id}]', ['uses' => 'OneController@updateRating']);
     $router->put('11111/{id}', ['uses' => 'OneController@update']);
 //  Dictionary Routers

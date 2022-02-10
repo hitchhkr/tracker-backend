@@ -7,6 +7,9 @@
     use MongoDB\BSON\ObjectId;
     use App\Extra\General;
     use App\Extra\Label;
+    use App\Extra\Mongodb\Aggregate\Sort;
+    use App\Extra\Mongodb\Aggregate\Sample;
+    use App\Extra\Mongodb\Aggregate\Unwind;
 
     class One extends Mongo {
 
@@ -75,6 +78,123 @@
             ];
 
             return $this->dbfind($q,$multi,$options);
+
+        }
+
+        public function getByDirector($id):?array
+        {
+
+            $match = [
+                '$match' => [
+                    'director' => [
+                        '$elemMatch' => [
+                            '_id' => new ObjectId($id)
+                        ]
+                    ]
+                ]
+            ];
+
+            $sort = (new Sort())->addCondition('year','desc');
+
+            $agg = [
+                $match,
+                $sort->get()
+            ];
+
+            return $this->dbagg($agg);
+
+        }
+
+        public function getByDecade(int $id, bool $random = true, int $limit = 10):?array
+        {
+
+            $match = [
+                '$match' => [
+                    'decade' => $id
+                ]
+            ];
+
+            $agg = [
+                $match
+            ];
+
+            if($random == true){
+                $sample = (new Sample())->setLimit($limit)->get();
+                array_push($agg,$sample);
+            }
+
+            return $this->dbagg($agg);
+
+        }
+
+        public function getByGenre(string $id, bool $random = true, int $limit = 10):?array
+        {
+
+            $match = [
+                '$match' => [
+                    'genres' => [
+                        '$elemMatch' => [
+                            '_id' => new ObjectId($id)
+                        ]
+                    ]
+                ]
+            ];
+
+            $agg = [
+                $match
+            ];
+
+            if($random == true){
+                $sample = (new Sample())->setLimit($limit)->get();
+                array_push($agg,$sample);
+            }
+
+            return $this->dbagg($agg);
+
+        }
+
+        public function getFocus(string $field, string $not = null):?array
+        {
+
+            $unwind = (new Unwind())->setField($field)->get();
+
+            $group = [
+                '$group' => [
+                    '_id' => '$' . $field,
+                    'info' => [
+                        '$push' => [
+                            '_id' => '$_id',
+                            'title' => '$title',
+                            'cropped' => '$cropped'
+                        ]
+                    ]
+                ]
+            ];
+
+            $sample = (new Sample())->setLimit(1)->get();
+            $unwind2 = (new Unwind())->setField('info')->get();
+            $sample2 = (new Sample())->setLimit(1)->get();
+
+            $agg = [
+                $unwind,
+                $group,
+                $sample,
+                $unwind2,
+                $sample2
+            ];
+
+            if($not){
+                $match = [
+                    '$match' => [
+                        '_id' => [
+                            '$ne' => new ObjectId($not)
+                        ]
+                    ]
+                ];
+                array_unshift($agg,$match);
+            }
+
+            return $this->dbagg($agg);
 
         }
 

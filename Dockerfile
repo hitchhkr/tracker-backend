@@ -1,4 +1,4 @@
-FROM dev_php80:latest
+FROM phpdev:8.0
 
 #RUN yum install -y php-pecl-mcrypt php-gmp php-pgsql
 

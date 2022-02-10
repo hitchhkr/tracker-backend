@@ -84,6 +84,14 @@
                         'difficulty' => [
                             '$avg' => '$rating.difficulty'
                         ],
+                        'overall' => [
+                            '$avg' => [
+                                '$add' => [
+                                    '$rating.quality',
+                                    '$rating.enjoyment'
+                                ]
+                            ]
+                        ],
                         'total' => [
                             '$sum' => 1
                         ]
@@ -122,6 +130,14 @@
                         ],
                         'difficulty' => [
                             '$avg' => '$rating.difficulty'
+                        ],
+                        'overall' => [
+                            '$avg' => [
+                                '$add' => [
+                                    '$rating.quality',
+                                    '$rating.enjoyment'
+                                ]
+                            ]
                         ],
                         'total' => [
                             '$sum' => 1

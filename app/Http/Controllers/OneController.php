@@ -84,8 +84,95 @@
 
             $resp = [];
 
-            $ratings = new Ratings();
-            $resp['db'] = $ratings->getRatingSummary();
+            switch($type){
+
+                case 'rating':
+
+                    $ratings = new Ratings();
+                    $resp['db'] = $ratings->getRatingSummary();
+
+                    break;
+
+                case 'director':
+
+                    $db = new One();
+                    $director = $db->getByDirector($subtype);
+
+                    $ratings = new Ratings();
+
+                    foreach($director AS $k => $d){
+                        $director[$k]['ratings'] = $ratings->setFilmId((string)$d['_id'])->get();
+                    }
+
+                    $resp['db'] = General::formatMongoForJson($director);
+
+                    break;
+
+                case 'decade':
+
+                    $random = $request->input('random') ? $request->input('random') : false;
+                    $limit = $request->input('limit') ? $request->input('limit') : 10;
+
+                    $db = new One();
+                    $data = $db->getByDecade($subtype,$random,$limit);
+
+                    $ratings = new Ratings();
+
+                    if(!$data){
+                        $resp['db'] = null;
+                        break;
+                    }
+
+                    foreach($data AS $k => $d){
+                        $data[$k]['ratings'] = $ratings->setFilmId((string)$d['_id'])->get();
+                    }
+
+                    $resp['db'] = General::formatMongoForJson($data);
+
+                    break;
+
+                case 'genres':
+
+                        $random = $request->input('random') ? $request->input('random') : false;
+                        $limit = $request->input('limit') ? $request->input('limit') : 10;
+    
+                        $db = new One();
+                        $data = $db->getByGenre($subtype,$random,$limit);
+    
+                        $ratings = new Ratings();
+    
+                        if(!$data){
+                            $resp['db'] = null;
+                            break;
+                        }
+    
+                        foreach($data AS $k => $d){
+                            $data[$k]['ratings'] = $ratings->setFilmId((string)$d['_id'])->get();
+                        }
+    
+                        $resp['db'] = General::formatMongoForJson($data);
+    
+                        break;
+
+                    case 'focus':
+
+                        $not = $request->input('not') ? $request->input('not') : 10;
+
+                        $db = new One();
+                        $focus = $db->getFocus($subtype,$not);
+
+                        $resp['focus'] = $focus ? General::formatMongoForJson($focus[0]) : null;
+                        $resp['text'] = 'Can you guess';
+
+                        break;
+
+                default:
+
+                    $resp['error'] = 'The type of request ' . $type . ' is not currently supported'; 
+
+                break;
+
+            }
 
             return response()->json(General::formatMongoForJson($resp),200);
 
@@ -192,8 +279,12 @@
 
             //  Remove any existing
                 if(isset($film['cropped'])){
-                    $gcp->remove($fn);
-                    $gcp->remove($fnSmall);
+                    try{
+                        $gcp->remove($fn);
+                        $gcp->remove($fnSmall);
+                    }catch(Exception $e){
+
+                    }
                 }
     
                 $file = General::processImageURI($vars['image']);
@@ -203,6 +294,9 @@
     
                 $upload = $gcp->upload($blob,$fn);
                 $uploadSmall = $gcp->upload($blobSmall,$fnSmall);
+
+                $fn = $oneId . '_full.jpg';
+                $fnSmall = $oneId . '_small.jpg';
 
                 $db->update([
                     'cropped' => [

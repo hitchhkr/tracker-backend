@@ -79,7 +79,8 @@
             }
 
             return response($gc->getImage($uri), 200)
-                  ->header('Content-Type', $contetType);
+                //->header('Cache-Control', 'max-age=3600')
+                ->header('Content-Type', $contetType);
 
         }
 

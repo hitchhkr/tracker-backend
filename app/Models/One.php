@@ -198,6 +198,51 @@
 
         }
 
+        public function getSimilar(string $id, int $limit):array
+        {
+
+            $compare = $this->setId($id)->get();
+
+            $genres = [];
+
+            if($compare['genres']){
+                foreach($compare['genres'] AS $g)
+                {
+                    $genres[] = $g['value'];
+                }
+            }
+
+            $match = [
+                '$match' => [
+                    '_id' => [ '$ne' => $compare['_id'] ],
+                    '$or' => [
+                        [
+                            'decade' => $compare['decade']
+                        ],
+                        [
+                            'genres' => [
+                                '$elemMatch' => [
+                                    'value' => [
+                                        '$in' => $genres
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+
+            $sample = (new Sample())->setLimit($limit)->get();
+
+            $aggs = [
+                $match,
+                $sample
+            ];
+
+            return $this->dbagg($aggs);
+
+        }
+
         public function create()
         {
 

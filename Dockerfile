@@ -10,6 +10,8 @@ RUN yum -y remove composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 
+RUN yum install -y php-xdebug
+
 # RUN npm config set "@fortawesome:registry" https://npm.fontawesome.com/ && \
 #     npm config set "//npm.fontawesome.com/:_authToken" 55093C26-00AE-46DE-9BBC-5E0E1EA1E508
 

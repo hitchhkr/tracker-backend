@@ -156,13 +156,24 @@
 
                     case 'focus':
 
-                        $not = $request->input('not') ? $request->input('not') : 10;
+                        $not = $request->input('not') ? $request->input('not') : null;
 
                         $db = new One();
                         $focus = $db->getFocus($subtype,$not);
 
                         $resp['focus'] = $focus ? General::formatMongoForJson($focus[0]) : null;
                         $resp['text'] = 'Can you guess';
+
+                        break;
+
+                    case 'similar':
+
+                        $limit = $request->input('limit') ? $request->input('limit') : 3;
+
+                        $film = new One();
+                        $similar = $film->getSimilar($subtype, $limit);
+
+                        $resp[$type] = $similar ? General::formatMongoForJson($similar) : null;
 
                         break;
 

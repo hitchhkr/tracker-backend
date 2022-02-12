@@ -12,6 +12,7 @@
         public float $quality;
         public float $enjoyment;
         public float $difficulty;
+        public string $review;
 
         public function __construct(){
 
@@ -39,12 +40,19 @@
             return $this;
         }
 
+        public function setReview(string $val = '')
+        {
+            $this->review = $val;
+            return $this;
+        }
+
         public function setAll(array $vals)
         {
 
             $this->setQuality($vals['quality']);
             $this->setEnjoyment($vals['enjoyment']);
             $this->setDifficulty($vals['difficulty']);
+            $this->setReview($vals['review']);
 
             return $this;
 

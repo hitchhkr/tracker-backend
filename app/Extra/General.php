@@ -14,6 +14,19 @@
 
         }
 
+        public static function removeWhiteSpace(string $str, bool $lower = false):string{
+
+            $stripped = preg_replace('/\s+/', ' ', $str);
+
+            if($lower == true)
+            {
+                $stripped = strtolower($stripped);
+            }
+
+            return trim($stripped);
+
+        }
+
         public static function formatMongoForJson(array $input):array{
 
             foreach($input AS $k => $v){

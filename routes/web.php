@@ -58,6 +58,7 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->get('11111/director[/{id}]', ['uses' => 'OneController@fetchDirector']);
     $router->get('11111/rating[/{id}]', ['uses' => 'OneController@fetchRating']);
     $router->get('11111/sections/{type}[/{subtype}]', ['uses' => 'OneController@fetchSection']);
+    $router->get('11111/search/{type}/{q}', ['uses' => 'OneController@fetchSearch']);
     $router->get('11111[/{id}]', ['uses' => 'OneController@fetch']);
 
     $router->post('11111/rating', ['uses' => 'OneController@createRating']);
@@ -65,6 +66,8 @@ $router->group(['prefix' => 'api'], function () use ($router){
     
     $router->put('11111/rating[/{id}]', ['uses' => 'OneController@updateRating']);
     $router->put('11111/{id}', ['uses' => 'OneController@update']);
+//  Attempts route
+    $router->get('attempts/{filmid}[/{userid}]',['uses' => 'AttemptsController@fetch']);
 //  Dictionary Routers
     $router->get('dictionary/{action}/{word}', ['uses' => 'DictionaryController@find']);
     $router->post('dictionary/{type}', ['uses' => 'DictionaryController@create']);

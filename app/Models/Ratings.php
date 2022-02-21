@@ -7,6 +7,7 @@
     use MongoDB\BSON\UTCDateTime;
     use MongoDB\BSON\ObjectId;
     use App\Extra\General;
+    use App\Extra\Mongodb\Aggregate\Helpers;
 
     class Ratings extends Mongo {
 
@@ -220,6 +221,8 @@
                 $lookup,
                 $unwind
             ];
+
+            $agg = (new Helpers())->buildOneUserDisplay($this->_user_id,$agg,'film._id')->get();
 
             return $this->dbagg($agg);
 

@@ -11,6 +11,8 @@
     use App\Models\Options;
     use App\Models\Ratings;
     use App\Models\Rating;
+    use App\Models\Attempts;
+    use App\Models\Found;
     use App\Extra\General;
     use App\Extra\Gsuite;
     use App\Extra\Label;
@@ -22,23 +24,22 @@
         public function fetch(?string $id = null, Request $request)
         {
 
+            $random = $request->input('random') ? $request->input('random') : false;
+            $limit = $request->input('limit') ? $request->input('limit') : 1;
+            $uid = $request->input('userid') ? $request->input('userid') : null;
+
             $db = new One();
+            $db->setUserId($uid);
 
             if($id){
                 $db->setId($id);
             }
 
-            $films = $db->get();
-            $total = count($films);
-
-            if($request->input('random') && !$id){
-                $rand = mt_rand(0,count($films) - 1);
-                $films = $films[$rand];
-            }
+            $films = $db->get($random,$limit);
 
             return response()->json([
-                'db' => General::formatMongoForJson($films),
-                'total' => $total
+                'db' => General::formatMongoForJson(count($films) == 1 ? $films[0] : $films),
+                'total' => count($db->get())
             ]);
 
         }
@@ -89,13 +90,18 @@
                 case 'rating':
 
                     $ratings = new Ratings();
+                    $uid = $request->input('userid') ? $request->input('userid') : null;
+                    $ratings->setUserId($uid);
                     $resp['db'] = $ratings->getRatingSummary();
 
                     break;
 
                 case 'director':
 
+                    $uid = $request->input('userid') ? $request->input('userid') : null;
+
                     $db = new One();
+                    $db->setUserId($uid);
                     $director = $db->getByDirector($subtype);
 
                     $ratings = new Ratings();
@@ -112,8 +118,10 @@
 
                     $random = $request->input('random') ? $request->input('random') : false;
                     $limit = $request->input('limit') ? $request->input('limit') : 10;
+                    $uid = $request->input('userid') ? $request->input('userid') : null;
 
                     $db = new One();
+                    $db->setUserId($uid);
                     $data = $db->getByDecade($subtype,$random,$limit);
 
                     $ratings = new Ratings();
@@ -135,8 +143,10 @@
 
                         $random = $request->input('random') ? $request->input('random') : false;
                         $limit = $request->input('limit') ? $request->input('limit') : 10;
+                        $uid = $request->input('userid') ? $request->input('userid') : null;
     
                         $db = new One();
+                        $db->setUserId($uid);
                         $data = $db->getByGenre($subtype,$random,$limit);
     
                         $ratings = new Ratings();
@@ -169,8 +179,10 @@
                     case 'similar':
 
                         $limit = $request->input('limit') ? $request->input('limit') : 3;
+                        $uid = $request->input('userid') ? $request->input('userid') : null;
 
                         $film = new One();
+                        $film->setUserId($uid);
                         $similar = $film->getSimilar($subtype, $limit);
 
                         $resp[$type] = $similar ? General::formatMongoForJson($similar) : null;
@@ -239,6 +251,88 @@
             return response()->json([
                 'db' => General::formatMongoForJson($create)
             ],$code);
+
+        }
+
+        public function fetchSearch(string $type,string $q,Request $request)
+        {
+
+            $resp = [];
+            $q = urldecode($q);
+
+            $resp['query'] = $q;
+            $db = new One();
+
+            $fid = $request->input('originalid') ? $request->input('originalid') : null;
+            $uid = $request->input('userid') ? $request->input('userid') : null;
+
+            switch($type){
+
+                case 'title':
+
+                    if(!$uid){
+                        $resp['error'] = 'No user id was sent over';
+                        break;
+                    }
+
+                    $result = $db->searchTitle($q);
+                    $match = null;
+
+                    foreach($result AS $k => $r){
+                        $rel = similar_text(General::removeWhiteSpace($r['title'],true),General::removeWhiteSpace($q,true),$perc);
+                        $result[$k]['rel'] = $rel; 
+                        $result[$k]['perc'] = $perc;
+                        $result[$k]['match'] = $perc >= 95 ? true : false;
+                        if((string)$r['_id'] == $fid){
+                            $match = $result[$k];
+                        }
+                    }
+
+                    $attempt = new Attempts();
+                    $attempt->setFilmId($fid)
+                        ->setUserId($uid)
+                        ->setSearch($q);
+
+                    if($match){
+                        $attempt->setSuccess($match['match']);
+                        switch(true){
+                            case $match['perc'] < 50:
+                                $resp['msg'] = 'Sorry but you have guessed incorrectly, please try again.';
+                                break;
+                            case $match['perc'] < 80;
+                                $resp['msg'] = 'Sorry but you have guessed incorrectly, but it looks like you are on the right lines. Why not have another go.';
+                                break;
+                            case $match['perc'] < 95;
+                                $resp['msg'] = 'Sorry but you have guessed incorrectly, but it looks like you are very close. Why not have another go, just try and amend the wording a little.';
+                                break;
+                            default:
+                                $resp['msg'] = 'Nice one! You are correct. The correct answer is ' . $match['title'] . '. This guess will be saved for future visists to the site.';
+                            break;
+                        }
+                        if($match['match'] == true){
+                            $found = new Found();
+                            $found->setFilmId($fid)
+                                ->setUserId($uid)
+                                ->setGuess($q)
+                                ->add();
+                        }
+                    }else{
+                        $resp['msg'] = 'Your guess is incorrect, please have another try.';
+                    }
+
+                    $resp['result'] = $result;
+                    $resp['match'] = $match;
+                    $resp['attempt'] = General::formatMongoForJson($attempt->create());
+
+                    break;
+
+                default:
+
+                    $resp['error'] = $type . ' is not supported';
+
+            }
+
+            return response()->json(General::formatMongoForJson($resp),200);
 
         }
 

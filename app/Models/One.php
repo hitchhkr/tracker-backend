@@ -10,10 +10,12 @@
     use App\Extra\Mongodb\Aggregate\Sort;
     use App\Extra\Mongodb\Aggregate\Sample;
     use App\Extra\Mongodb\Aggregate\Unwind;
+    use App\Extra\Mongodb\Aggregate\Helpers;
 
     class One extends Mongo {
 
-        private ObjectId $id;
+        private ?ObjectId $id = null;
+        private ?ObjectId $uid = null;
         public string $_label;
         public string $title;
         public UTCDateTime $created;
@@ -50,6 +52,12 @@
 
         }
 
+        public function setUserId($uid):object
+        {
+            $this->uid = $this->convertMongoId($uid);
+            return $this;
+        }
+
         public function setCreated(){
 
             $this->created = new UTCDateTime();
@@ -58,26 +66,41 @@
 
         }
 
-        public function get()
+        public function get(bool $random = false, int $limit = 10):?array
         {
 
-            if(isset($this->id)){
-                $q = [
-                    '_id' => $this->id
-                ];
-                $multi = false;
-            }else{
-                $q = [];
+            $multi = false;
+
+        //  If we have an id then we just send the single result
+            if(!$this->id){
+                $agg= [];
                 $multi = true;
+            }else{
+                $match = [
+                    '$match' => [
+                        '_id' => $this->id
+                    ]
+                ];
+                $agg = [$match];
             }
 
-            $options = [
-                'sort' => [
+            if($random == true){
+                $sample = (new Sample())->setLimit($limit)->get();
+                array_push($agg,$sample);
+            }
+
+            $agg = (new Helpers())->buildOneUserDisplay($this->uid,$agg)->get();
+
+            $sort = [
+                '$sort' => [
                     'title' => 1
                 ]
             ];
+            array_push($agg,$sort);
 
-            return $this->dbfind($q,$multi,$options);
+            $result = $this->dbagg($agg);
+
+            return $multi ? $result : $result[0];
 
         }
 
@@ -101,6 +124,8 @@
                 $sort->get()
             ];
 
+            $agg = (new Helpers())->buildOneUserDisplay($this->uid,$agg)->get();
+
             return $this->dbagg($agg);
 
         }
@@ -117,6 +142,8 @@
             $agg = [
                 $match
             ];
+
+            $agg = (new Helpers())->buildOneUserDisplay($this->uid,$agg)->get();
 
             if($random == true){
                 $sample = (new Sample())->setLimit($limit)->get();
@@ -143,6 +170,8 @@
             $agg = [
                 $match
             ];
+
+            $agg = (new Helpers())->buildOneUserDisplay($this->uid,$agg)->get();
 
             if($random == true){
                 $sample = (new Sample())->setLimit($limit)->get();
@@ -198,6 +227,50 @@
 
         }
 
+        public function searchTitle(string $q, int $limit = 10):?array
+        {
+
+            $search = [
+                '$search' => [
+                    'index' => 'one_search',
+                    'autocomplete' => [
+                        'path' => 'title',
+                        'query' => $q
+                    ]
+                ]
+            ];
+
+            $limit = [
+                '$limit' => $limit
+            ];
+
+            $project = [
+                '$project' => [
+                    'title' => 1,
+                    'year' => 1,
+                    'score' => [
+                        '$meta' => 'searchScore'
+                    ]
+                ]
+            ];
+
+            $sort = [
+                '$sort' => [
+                    'score' => -1
+                ]
+            ];
+
+            $agg = [
+                $search,
+                $limit,
+                $project,
+                $sort
+            ];
+
+            return $this->dbagg($agg);
+
+        }
+
         public function getSimilar(string $id, int $limit):array
         {
 
@@ -238,6 +311,8 @@
                 $match,
                 $sample
             ];
+
+            $aggs = (new Helpers())->buildOneUserDisplay($this->uid,$aggs)->get();
 
             return $this->dbagg($aggs);
 

@@ -54,6 +54,32 @@
             return $this;
         }
 
+        public function getTotal():?array
+        {
+
+            $agg = [];
+
+            if($this->_user_id){
+                $match = [
+                    '$match' => [
+                        '_user_id' => $this->_user_id
+                    ]
+                ];
+                array_push($agg,$match);
+            }
+
+            $count = [
+                '$count' => 'films'
+            ];
+
+            array_push($agg,$count);
+
+            $res = $this->dbagg($agg);
+
+            return $res ? $res[0] : ['films' => 0];
+
+        }
+
         public function add():array
         {
             if(!$this->_film_id)

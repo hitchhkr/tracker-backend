@@ -271,6 +271,21 @@
 
         }
 
+        public function getTotal():?array
+        {
+
+            $agg = [
+                [
+                    '$count' => 'films'
+                ]
+            ];
+
+            $res = $this->dbagg($agg);
+
+            return $res ? $res[0] : ['films' => 0];
+
+        }
+
         public function getSimilar(string $id, int $limit):array
         {
 

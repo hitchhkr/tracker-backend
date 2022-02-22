@@ -7,6 +7,8 @@
     use Illuminate\Hashing\BcryptHasher;
     use Illuminate\Support\Facades\Mail;
     use App\Models\Users;
+    use App\Models\One;
+    use App\Models\Found;
     use App\Extra\General;
     use App\Mail\TestMail;
     use App\Mail\ResetMail;
@@ -44,16 +46,39 @@
 
         }
 
-        public function fetch(?string $id = null){
+        public function fetch(?string $id = null, Request $request){
 
             $db = new Users();
             $result = $db->fetch($id);
+
+            $stats = $request->input('stats') ? $request->input('stats') : null;
 
             if($id){
 
                 unset($result['password']);
                 unset($result['passwordHistory']);
                 unset($result['resetRequests']);
+
+                if($stats){
+
+                    switch($stats){
+
+                        case 'films':
+
+                                $films = new One();
+                                $found = (new Found())->setUserId($id);
+
+                                $result['stats'] = [
+                                    'total' => $films->getTotal(),
+                                    'complete' => $found->getTotal()
+                                ];
+
+                            break;
+
+                    }
+
+                }
+
 
             }else{
 

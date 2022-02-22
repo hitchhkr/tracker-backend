@@ -43,7 +43,7 @@
             return $this;
         }
 
-        public function setUserId(string $val)
+        public function setUserId(?string $val)
         {
             $this->_user_id = $this->convertMongoId($val);
             return $this;

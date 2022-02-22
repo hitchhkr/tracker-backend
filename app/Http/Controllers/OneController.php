@@ -444,6 +444,17 @@
                     }
                 }
 
+                if($vars['edition']){
+                    $options->setType('11111_editions');
+                    $check = $options->setValue($vars['edition'])->get();
+                    if($check){
+                        $vars['edition'] = $check;
+                    }else{
+                        $options->create();
+                        $vars['edition'] = $options->get();
+                    }
+                }
+
                 if($vars['year'] > 1919)
                 {
                     $vars['decade'] = General::getDecade($vars['year']);

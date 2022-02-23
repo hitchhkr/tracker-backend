@@ -286,6 +286,48 @@
 
         }
 
+        public function getRecent(string $id, int $limit):array
+        {
+
+            $compare = $this->setId($id)->get();
+
+            $genres = [];
+
+            if($compare['genres']){
+                foreach($compare['genres'] AS $g)
+                {
+                    $genres[] = $g['value'];
+                }
+            }
+
+            $match = [
+                '$match' => [
+                    '_id' => [ '$ne' => $compare['_id'] ],
+                ]
+            ];
+
+            $sort = [
+                '$sort' => [
+                    'created' => -1
+                ]
+            ];
+
+            $limit = [
+                '$limit' => $limit
+            ];
+
+            $aggs = [
+                $match,
+                $sort,
+                $limit
+            ];
+
+            $aggs = (new Helpers())->buildOneUserDisplay($this->uid,$aggs)->get();
+
+            return $this->dbagg($aggs);
+
+        }
+
         public function getSimilar(string $id, int $limit):array
         {
 

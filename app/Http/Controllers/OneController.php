@@ -189,6 +189,19 @@
 
                         break;
 
+                    case 'recent':
+
+                        $limit = $request->input('limit') ? $request->input('limit') : 3;
+                        $uid = $request->input('userid') ? $request->input('userid') : null;
+
+                        $film = new One();
+                        $film->setUserId($uid);
+                        $recent = $film->getRecent($subtype, $limit);
+
+                        $resp[$type] = $recent ? General::formatMongoForJson($recent) : null;
+
+                        break;
+
                 default:
 
                     $resp['error'] = 'The type of request ' . $type . ' is not currently supported'; 

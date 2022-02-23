@@ -41,6 +41,8 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->delete('user/{id}', ['uses' => 'UsersController@remove']);
 //  Audit Routes
     $router->post('audit', ['uses' => 'AuditController@audit']);
+//  Views Routes
+    $router->post('view', ['uses' => 'ViewController@create']);
 //  Quiz Routes
     $router->get('quiz[/{id}]',['uses' => 'QuizController@fetch']);
     $router->post('quiz',['uses' => 'QuizController@create']);

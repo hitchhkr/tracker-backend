@@ -8,6 +8,7 @@
     //use Illuminate\Support\Facades\Mail;
     use App\Models\One;
     use App\Models\Directors;
+    use App\Models\Actors;
     use App\Models\Options;
     use App\Models\Ratings;
     use App\Models\Rating;
@@ -429,6 +430,35 @@
 
             }
 
+            if(isset($vars['cast'])){
+
+                $film = [];
+                $cast = [];
+
+                $actors = new Actors();
+
+                $name = $vars['cast']['name'];
+                $char = $vars['cast']['character'];
+                if(trim($name) == ''){
+                    return response()->json([
+                        'film' => null,
+                        // 'vars' => $vars
+                    ]);
+                }
+
+                $check = $actors->setName($name)->get();
+                if($check){
+                    $cast['name'] = $check;
+                }else{
+                    $actors->create();
+                    $cast['name'] = $actors->get();
+                }
+
+                $cast['character'] = $char;
+                $film = $db->updateCast($cast);
+
+            }
+
             if(isset($vars['title'])){
 
                 $directors = new Directors();
@@ -479,7 +509,7 @@
 
             return response()->json([
                 'film' => General::formatMongoForJson($film),
-                //'vars' => $vars
+                'vars' => $vars
             ]);
 
         }

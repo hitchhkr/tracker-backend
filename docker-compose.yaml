@@ -8,7 +8,7 @@ services:
     ports:
       - 4151:80
     environment:
-      - MONGOURI=dev:devpass@dev_mongo
+      - MONGOURI=dev:sfbMKosIaQEPLhh2@cluster0.5ue22.mongodb.net/trackerdev?retryWrites=true&w=majority
       - MONGODB=citest
     networks:
       common: {}

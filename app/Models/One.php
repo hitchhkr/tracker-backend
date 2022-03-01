@@ -410,6 +410,40 @@
 
         }
 
+        public function getCast($name = null)
+        {
+
+
+
+        }
+
+        public function updateCast($data)
+        {
+
+            if(!$this->id){
+                throw new Exception('no id has been set');
+            }
+
+            $q = [
+                '_id' => $this->id
+            ];
+
+            $update = [
+                '$push' => [
+                    'cast' => $data
+                ],
+                '$set' => [
+                    'updated' => new UTCDateTime()
+                ],
+                '$inc' => [
+                    'version' => 1
+                ]
+            ];
+
+            return $this->dbupdate($q,$update);
+
+        }
+
     }
 
 ?>

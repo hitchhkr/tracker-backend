@@ -350,6 +350,21 @@
 
         }
 
+        public function fetchSummary(string $type, Request $request)
+        {
+
+            $resp = [];
+            $code = 200;
+
+            $db = new One();
+            $resp['list'] = $db->getSummary($type);
+
+            $resp['type'] = $type;
+
+            return response()->json(General::formatMongoForJson($resp),$code);
+
+        }
+
         public function updateRating(Request $request)
         {
 

@@ -375,6 +375,72 @@
 
         }
 
+        public function getSummary(string $type)
+        {
+
+            if($type == 'decades'){
+
+                $group = [
+                    '$group' => [
+                        '_id' => '$decade',
+                        'click' => [
+                            '$first' => '$decade'
+                        ],
+                        'count' => [
+                            '$sum' => 1
+                        ]
+                    ]
+                ];
+
+                $sort = (new Sort)
+                    ->addCondition('count','desc')
+                    ->addCondition('_id')
+                    ->get();
+
+                $agg = [
+                    $group,
+                    $sort
+                ];
+
+            }else{
+
+                $project = [
+                    '$project' => [
+                        $type => 1
+                    ]
+                ];
+
+                $unwind = (new Unwind())->setField($type)->get();
+
+                $group = [
+                    '$group' => [
+                        '_id' => '$' . $type . '.value',
+                        'click' => [
+                            '$first' => '$' . $type . '._id'
+                        ],
+                        'count' => [
+                            '$sum' => 1
+                        ]
+                    ]
+                ];
+
+                $sort = (new Sort)->addCondition('count','desc')
+                    ->addCondition('_id')        
+                    ->get();
+
+                $agg = [
+                    $project,
+                    $unwind,
+                    $group,
+                    $sort
+                ];
+
+            }
+
+            return $this->dbagg($agg);
+
+        }
+
         public function create()
         {
 

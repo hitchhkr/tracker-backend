@@ -61,6 +61,7 @@ $router->group(['prefix' => 'api'], function () use ($router){
     $router->get('11111/rating[/{id}]', ['uses' => 'OneController@fetchRating']);
     $router->get('11111/sections/{type}[/{subtype}]', ['uses' => 'OneController@fetchSection']);
     $router->get('11111/search/{type}/{q}', ['uses' => 'OneController@fetchSearch']);
+    $router->get('11111/summary/{type}', ['uses' => 'OneController@fetchSummary']);
     $router->get('11111[/{id}]', ['uses' => 'OneController@fetch']);
 
     $router->post('11111/rating', ['uses' => 'OneController@createRating']);
